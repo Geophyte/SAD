@@ -1,19 +1,13 @@
 import pandas as pd
 from matplotlib import pyplot as plt
-import seaborn as sns
-from sklearn.preprocessing import LabelEncoder
-from sklearn.feature_selection import mutual_info_regression
-from mpl_toolkits.mplot3d import Axes3D
-import matplotlib.pyplot as plt
 import numpy as np
 import statsmodels.api as sm
 from matplotlib.lines import Line2D
 import warnings
-import matplotlib
 from scipy.stats import norm, cauchy
 
 # Ta opcja wyłącza interaktywne wykresy ponieważ powodowały (u nas) wyświetlanie wielu błędów w terminalu
-matplotlib.use("Agg")
+# matplotlib.use("Agg")
 
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 warnings.filterwarnings("ignore", category=UserWarning)
@@ -91,10 +85,6 @@ df_long = (
     .rename(columns={"index": "investment"})
     .melt(id_vars="investment", var_name="earning", value_name="n")
 )
-df_expanded = df_long.loc[df_long.index.repeat(df_long["n"])].reset_index(drop=True)
-df_expanded = df_expanded[["investment", "earning"]]
-df_expanded["investment"] = df_expanded["investment"].map(investment_mappings)
-df_expanded["earning"] = df_expanded["earning"].map(incom_mappings)
 
 
 ### Regresja liniowa z użyciem modułu statsmodels
@@ -116,7 +106,7 @@ model = sm.WLS(
 
 
 # Podsumowanie Regresji
-print(model.summary(xname=["investment", "earning"]))
+print(model.summary())
 
 
 # Wykres reprezentujący modell regresji
@@ -217,11 +207,31 @@ plt.title(
 )
 plt.savefig("task_1_portfel_inwestycyjny_3d.png", bbox_inches="tight")
 
+
+df_expanded = df_long.loc[df_long.index.repeat(df_long["n"])].reset_index(drop=True)
+df_expanded = df_expanded[["investment", "earning"]]
+df_expanded["investment"] = df_expanded["investment"].map(investment_mappings)
+df_expanded["earning"] = df_expanded["earning"].map(incom_mappings)
+print()
+print(f"Średnia inwestycji: {df_expanded['investment'].mean():.2f} tys. zł")
+print(
+    f"Odchylenie standardowe inwestycji: {df_expanded['investment'].std():.2f} tys. zł"
+)
+print(f"Mediana inwestycji: {df_expanded['investment'].median():.2f} tys. zł")
+print(f"Średni dochód: {df_expanded['earning'].mean():.2f} tys. zł")
+print(f"Odchylenie standardowe dochodu: {df_expanded['earning'].std():.2f} tys. zł")
+print(f"Mediana dochodu: {df_expanded['earning'].median():.2f} tys. zł")
 print()
 print("Średnia, odchylenie standardowe i mediana dla każdego przedziału dochodowego:")
 print("Means:", list(df_expanded.groupby("earning")["investment"].mean()))
 print("Stds:", list(df_expanded.groupby("earning")["investment"].std()))
 print("Medians:", list(df_expanded.groupby("earning")["investment"].median()))
 
+plt.figure(figsize=(12, 6))
+df_expanded.groupby("earning")["investment"].mean().plot()
+plt.ylabel("Średnia wartość inwestycji (tys. zł)")
+plt.xlabel("Mesięczny dochód (tys. zł)")
+plt.title("Średnia wartość inwestycji w zależności od dochodu")
+plt.savefig("task_1_srednia_wartosc_inwestycji.png", bbox_inches="tight")
 
 plt.show()
