@@ -5,9 +5,10 @@ import statsmodels.api as sm
 from matplotlib.lines import Line2D
 import warnings
 from scipy.stats import norm, cauchy
+import matplotlib
 
 # Ta opcja wyłącza interaktywne wykresy ponieważ powodowały (u nas) wyświetlanie wielu błędów w terminalu
-# matplotlib.use("Agg")
+matplotlib.use("Agg")
 
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 warnings.filterwarnings("ignore", category=UserWarning)
@@ -62,7 +63,7 @@ df_percent_of_people_with_income_investments = (
 
 investment_df.plot.bar(stacked=True, figsize=(12, 9))
 plt.title(
-    "Ilość osób w różnych przedziałach dochodowych, podzielona na wielkość portwela inwestycyjnego"
+    "Ilość osób w różnych przedziałach dochodowych, podzielona na wielkość portfela inwestycyjnego"
 )
 plt.xlabel("Wielkość portfela inwestycyjnego")
 plt.ylabel("Liczba osób")
@@ -71,13 +72,15 @@ plt.savefig("task_1_portfel_inwestycyjny.png", bbox_inches="tight")
 df_percent_of_people_with_income_investments.plot.bar(stacked=True, figsize=(12, 9))
 
 plt.title(
-    "Procentowy stosunek ilości osób z róznych przedziałów dochodowych, podzielona ze względu na wielkość portwela inwestycyjnego"
+    "Procentowy stosunek ilości osób z róznych przedziałów dochodowych, podzielona ze względu na wielkość portfela inwestycyjnego"
 )
 plt.xlabel("Wielkość portfela inwestycyjnego")
 plt.ylabel("Procent osób")
 plt.xticks(rotation=30)
 plt.savefig("task_1_portfel_inwestycyjny_procent.png", bbox_inches="tight")
 
+
+### Regresja liniowa z użyciem modułu statsmodels
 
 # Rozszerzenie danych do wierszu na jedną osobę
 df_long = (
@@ -86,8 +89,6 @@ df_long = (
     .melt(id_vars="investment", var_name="earning", value_name="n")
 )
 
-
-### Regresja liniowa z użyciem modułu statsmodels
 df_long["earning_aprox"] = df_long["earning"].map(incom_mappings)
 df_long["investment_aprox"] = df_long["investment"].map(investment_mappings)
 
@@ -134,7 +135,7 @@ plt.tight_layout()
 plt.savefig("task_1_regresion.png", bbox_inches="tight")
 
 
-### Histogram, wraz z dopasowaniem dwóch rozkładów (normalny i Cauchy'ego)
+### 3D Histogram, wraz z dopasowaniem dwóch rozkładów (normalny i Cauchy'ego)
 dx, dy = 1.0, 0.4
 
 df_percent_of_investments = investment_df.div(investment_df.sum(axis=0), axis=1) * 100
@@ -161,6 +162,7 @@ means = []
 stds = []
 medians = []
 
+# Dopasowanie rozkładów normalnego i Cauchy'ego
 for i, row in enumerate(df_percent_of_investments.values):
     x_vals = x_ticks
     y_vals = row
@@ -197,9 +199,9 @@ ax.set_yticklabels([""] + list(data.keys()), rotation=10)
 
 
 ax.set_zlabel("% Osób z danego przedziału dochodowego")
-ax.set_xlabel("Investment")
+ax.set_xlabel("Portfel inwestycyjny (tys. zł)")
 ax.xaxis.labelpad = 10
-ax.set_ylabel("Earning")
+ax.set_ylabel("Dochód (tys. zł)")
 ax.yaxis.labelpad = 10
 plt.tight_layout()
 plt.title(
@@ -207,6 +209,8 @@ plt.title(
 )
 plt.savefig("task_1_portfel_inwestycyjny_3d.png", bbox_inches="tight")
 
+
+### Doadatkowe statystyki
 
 df_expanded = df_long.loc[df_long.index.repeat(df_long["n"])].reset_index(drop=True)
 df_expanded = df_expanded[["investment", "earning"]]
