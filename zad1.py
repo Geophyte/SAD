@@ -232,7 +232,7 @@ print("Stds:", list(df_expanded.groupby("earning")["investment"].std()))
 print("Medians:", list(df_expanded.groupby("earning")["investment"].median()))
 
 plt.figure(figsize=(12, 6))
-df_expanded.groupby("earning")["investment"].mean().plot()
+df_expanded.groupby("earning")["investment"].mean().plot(marker="o")
 plt.ylabel("Średnia wartość inwestycji (tys. zł)")
 plt.xlabel("Mesięczny dochód (tys. zł)")
 plt.title("Średnia wartość inwestycji w zależności od dochodu")
